@@ -25,6 +25,14 @@ char possibleSuits[4] = {'P', 'O', 'E', 'C'};
 trucoCard deck[DECK_SIZE] = {};
 trucoCard nullCard;
 
+int playerPoints = 0;
+int aiPoints = 0;
+
+int playerCounter = 0;
+int aiCounter = 0;
+    
+int roundValue = 1;
+
 int generateHierarchy(int cardNumber, char cardSuit) {
 
     int hierarchy;
@@ -137,35 +145,39 @@ void drawCards() {
     printf("\n"); 
 }  
 
-void oppPlaysCard(int index) {
+int compareCards(trucoCard playerCard, trucoCard aiCard) {
 
-    while (oppHand[index].isPlayed) {
-        index = RANDOM_HAND_CARD;
+    if (playerCard.hierarchy == aiCard.hierarchy) {
+        playerCounter += 1;
+        aiCounter += 1;
+    } 
+    if (playerCard.hierarchy > aiCard.hierarchy) {
+        playerCounter += 1;
     }
-
-    oppHand[index].isPlayed = true;
-    printf("\nOponente jogou: %d%c", oppHand[index].cardNumber, oppHand[index].cardSuit);
+    
+    if (playerCard.hierarchy < aiCard.hierarchy) {
+        aiCounter += 1;
+    }
+    return 0;
 }
 
-trucoCard playCard(int index){
 
-    if (hand[index].isPlayed) {
-        printf("\nJogue outra carta. ");
-        return nullCard;
+int addPoints() {
+    
+    if (playerCounter == 2) {
+        playerPoints += roundValue;
     }
 
-    printf("\nTu jogou: %d%c", hand[index].cardNumber, hand[index].cardSuit);
-    
-    oppPlaysCard(RANDOM_HAND_CARD);
-    hand[index].isPlayed = true;
-    cardsPlayed += 1;
-    return hand[index];
+    if (aiCounter == 2) {
+        aiPoints += roundValue;
+    }
+    return 0;
 }
 
 int main() {
 
     int on = 1;
-    int console = 1;
+    int console;
 
     srand(time(NULL));
     generateDeck();
@@ -174,7 +186,7 @@ int main() {
     printf("\nGUIA:\n0. FECHAR PROGRAMA\n1. JOGAR PRIMEIRA CARTA\n2. JOGAR SEGUNDA CARTA\n3. JOGAR TERCEIRA CARTA\n4. VER DECK INCIAL\n");
     
     drawCards();
-
+    
     while (on == 1) {
         printf("\n\nCONSOLE: ");
         scanf("%d", &console);
@@ -185,28 +197,66 @@ int main() {
         } 
 
         if (console == 1) {
-            if (cardsPlayed < 3) {
-                playCard(0);
-            } else {
-                printf("As cartas acabaram. ");
+            int randomIndex = RANDOM_HAND_CARD;
+        
+            if (hand[0].isPlayed) {
+                printf("Jogue outra carta."); 
+            }
+            else {
+                printf("\nTu jogou: %d%c", hand[0].cardNumber, hand[0].cardSuit);
+                hand[0].isPlayed = true;
+
+                while(oppHand[randomIndex].isPlayed) {randomIndex = RANDOM_HAND_CARD;}
+                printf("\nOponente jogou: %d%c", oppHand[randomIndex].cardNumber, oppHand[randomIndex].cardSuit);
+                oppHand[randomIndex].isPlayed = true;
+                compareCards(hand[0], oppHand[randomIndex]);
+                cardsPlayed += 1;
             }
         }
-
+            
         if (console == 2) {
-            if (cardsPlayed < 3) {
-                playCard(1);
-                
-            } else {
-                printf("As cartas acabaram. ");
+            int randomIndex = RANDOM_HAND_CARD;
+        
+            if (hand[1].isPlayed) {
+                printf("Jogue outra carta."); 
+            }
+            else {
+                printf("\nTu jogou: %d%c", hand[1].cardNumber, hand[1].cardSuit);
+                hand[1].isPlayed = true;
+
+                while(oppHand[randomIndex].isPlayed) {randomIndex = RANDOM_HAND_CARD;}
+                printf("\nOponente jogou: %d%c", oppHand[randomIndex].cardNumber, oppHand[randomIndex].cardSuit);
+                oppHand[randomIndex].isPlayed = true;
+                compareCards(hand[1], oppHand[randomIndex]);
+                cardsPlayed += 1;
             }
         }
 
         if (console == 3) {
-            if (cardsPlayed < 3) {
-                playCard(2);
-            } else {
-                printf("As cartas acabaram. ");
+            int randomIndex = RANDOM_HAND_CARD;
+        
+            if (hand[2].isPlayed) {
+                printf("Jogue outra carta."); 
             }
+            else {
+                printf("\nTu jogou: %d%c", hand[2].cardNumber, hand[2].cardSuit);
+                hand[2].isPlayed = true;
+
+                while(oppHand[randomIndex].isPlayed) {randomIndex = RANDOM_HAND_CARD;}
+                printf("\nOponente jogou: %d%c", oppHand[randomIndex].cardNumber, oppHand[randomIndex].cardSuit);
+                oppHand[randomIndex].isPlayed = true;
+                compareCards(hand[2], oppHand[randomIndex]);
+                cardsPlayed += 1;
+            }
+        }
+
+        if (cardsPlayed == 3) {
+            addPoints();
+            printf("\n\nPONTOS");
+            printf("\nTu: %d", playerPoints);
+            printf("\nOponente: %d", aiPoints);
+            playerCounter = 0;
+            aiCounter = 0;
         }
 
         if (console == 4) {
