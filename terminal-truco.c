@@ -46,19 +46,19 @@ int flipCoin ()
 
 int generateHierarchy(int cardNumber, char cardSuit)
 {
-    int hierarchy;
+    int hierarchy = 0;
 
     if (cardNumber == 3)
     {
         hierarchy = 10;
     }
 
-    if (cardNumber == 2)
+    else if (cardNumber == 2)
     {
         hierarchy = 9;
     }
 
-    if (cardNumber == 1)
+    else if (cardNumber == 1)
     {
         hierarchy = 8;
         if (cardSuit == 'E')
@@ -71,22 +71,22 @@ int generateHierarchy(int cardNumber, char cardSuit)
         }
     }
 
-    if (cardNumber == 12)
+    else if (cardNumber == 12)
     {
         hierarchy = 7;
     }
 
-    if (cardNumber == 11)
+    else if (cardNumber == 11)
     {
         hierarchy = 6;
     }
 
-    if (cardNumber == 10)
+    else if (cardNumber == 10)
     {
         hierarchy = 5;
     }
 
-    if (cardNumber == 7)
+    else if (cardNumber == 7)
     {
         hierarchy = 4;
         if (cardSuit == 'O')
@@ -99,17 +99,17 @@ int generateHierarchy(int cardNumber, char cardSuit)
         }
     }
 
-    if (cardNumber == 6)
+    else if (cardNumber == 6)
     {
         hierarchy = 3;
     }
 
-    if (cardNumber == 5)
+    else if (cardNumber == 5)
     {
         hierarchy = 2;
     }
 
-    if (cardNumber == 4)
+    else if (cardNumber == 4)
     {
         hierarchy = 1;
     }
@@ -213,11 +213,11 @@ int compareCards(trucoCard playerCard, trucoCard aiCard)
 
 void addPoints() 
 {
-    if (playerCounter == 2)
+    if (playerCounter >= 2 && playerCounter != aiCounter)
     {
         playerPoints += roundValue;
     }
-    if (aiCounter == 2)
+    if (aiCounter >= 2 && playerCounter != aiCounter)
     {
         aiPoints += roundValue;
     }
@@ -228,32 +228,38 @@ void showPoints()
     printf("\n\n-------------PONTOS-------------");
     printf("\nTu: %d", playerPoints);
     printf("\nOponente: %d", aiPoints);
+    printf("\n--------------------------------\n");
 }
 
 int main()
 {   
     srand(time(NULL));
-    playerCounter = 0;
-    aiCounter = 0;  
-    int cardsPlayed = 0;
-    int coin = flipCoin();
-
     generateDeck();
-    shuffleDeck();
-    drawCards();
-    //showCards();
 
+
+    int pointsToWin = 3;
+    int coin = flipCoin();
     if (coin == 1) 
     {
-        printf("\nTu joga primeiro!\n");
+        printf("\nTU JOGA PRIMEIRO.\n");
         youPlayNext = true;
     } else if (coin == 2) 
     {
-        printf("\nA IA joga primeiro!\n");
+        printf("\nA IA JOGA PRIMEIRO.\n");
         youPlayNext = false;
     }
 
+    bool whoWentFirst = youPlayNext;
+
     int mainLoop = 1;
+    playerPoints = 0;
+    aiPoints = 0;
+    playerCounter = 0;
+    aiCounter = 0;  
+    int cardsPlayed = 0;
+    shuffleDeck();
+    drawCards();
+    //showCards();
 
     while (mainLoop == 1) 
     {
@@ -264,7 +270,7 @@ int main()
             {
                 randomIndex = RANDOM_HAND_CARD;
             }
-            printf("\nOponente jogou: %d", oppHand[randomIndex].cardNumber);
+            printf("\nOPONENTE: %d", oppHand[randomIndex].cardNumber);
             printf("%c", oppHand[randomIndex].cardSuit);
             oppHand[randomIndex].isPlayed = true;
             cardsPlayed += 1;
@@ -279,7 +285,7 @@ int main()
                 printf("JOGUE OUTRA CARTA: \n");
                 scanf("%d", &choice);
             }
-            printf("\nTu jogou: %d", hand[choice - 1].cardNumber);
+            printf("\nTU: %d", hand[choice - 1].cardNumber);
             printf("%c", hand[choice - 1].cardSuit);
             hand[choice - 1].isPlayed = true;
             cardsPlayed += 1;
@@ -300,9 +306,43 @@ int main()
                     break;
                 
             }
+
+            if (playerPoints >= pointsToWin)
+            {
+                printf("TU VENCEU!");
+                return 0;
+            }
+
+            if (aiPoints >= pointsToWin)
+            {
+                printf("OPONENTE VENCEU!");
+                return 0;
+            }
+
             if (cardsPlayed == 6 || aiCounter == 2 || playerCounter == 2) 
             {
-                mainLoop = 0;
+                
+                addPoints();
+                sleep(1); 
+                showPoints();
+                if (playerPoints >= pointsToWin)
+                {
+                    printf("TU VENCEU!");
+                    return 0;
+                }
+
+                if (aiPoints >= pointsToWin)
+                {
+                    printf("OPONENTE VENCEU!");
+                    return 0;
+                }
+                youPlayNext = !(whoWentFirst);
+
+                playerCounter = 0;
+                aiCounter = 0;  
+                cardsPlayed = 0;
+                shuffleDeck();
+                drawCards();
             }
         }
 
@@ -318,7 +358,7 @@ int main()
                 printf("JOGUE OUTRA CARTA: \n");
                 scanf("%d", &choice);
             }
-            printf("\nTu jogou: %d", hand[choice - 1].cardNumber);
+            printf("\nTU: %d", hand[choice - 1].cardNumber);
             printf("%c", hand[choice - 1].cardSuit);
             hand[choice - 1].isPlayed = true;
             cardsPlayed += 1;
@@ -328,7 +368,7 @@ int main()
             {
                 randomIndex = RANDOM_HAND_CARD;
             }
-            printf("\nOponente jogou: %d", oppHand[randomIndex].cardNumber);
+            printf("\nOPONENTE: %d", oppHand[randomIndex].cardNumber);
             printf("%c", oppHand[randomIndex].cardSuit);
             oppHand[randomIndex].isPlayed = true;
             cardsPlayed += 1;
@@ -349,13 +389,33 @@ int main()
                     break;
             }
 
+            
+
             if (cardsPlayed == 6 || aiCounter == 2 || playerCounter == 2)  
             {
-                mainLoop = 0;
+                addPoints();
+                sleep(1); 
+                showPoints();
+                if (playerPoints >= pointsToWin)
+                {
+                    printf("TU VENCEU!");
+                    return 0;
+                }
+
+                if (aiPoints >= pointsToWin)
+                {
+                    printf("OPONENTE VENCEU!");
+                    return 0;
+                }
+
+                youPlayNext = !(whoWentFirst);
+
+                playerCounter = 0;
+                aiCounter = 0;  
+                cardsPlayed = 0;
+                shuffleDeck();
+                drawCards();
             }
-        }  
-    } 
-    addPoints();
-    sleep(1);
-    showPoints();
+        } 
+    }  
 }  
