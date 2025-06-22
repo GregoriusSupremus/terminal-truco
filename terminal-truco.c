@@ -60,6 +60,8 @@ int generateHierarchy(int cardNumber, char cardSuit)
 
     else if (cardNumber == 1)
     {
+        hierarchy = 8;
+
         if (cardSuit == 'E')
         {
             hierarchy = 14;
@@ -68,7 +70,6 @@ int generateHierarchy(int cardNumber, char cardSuit)
         {
             hierarchy = 13;
         }
-        hierarchy = 8;
     }
 
     else if (cardNumber == 12)
@@ -88,6 +89,7 @@ int generateHierarchy(int cardNumber, char cardSuit)
 
     else if (cardNumber == 7)
     {
+        hierarchy = 4;
         if (cardSuit == 'O')
         {
             hierarchy = 11;
@@ -95,8 +97,7 @@ int generateHierarchy(int cardNumber, char cardSuit)
         if (cardSuit == 'E')
         {
             hierarchy = 12;
-        }
-        hierarchy = 4;
+        }   
     }
 
     else if (cardNumber == 6)
@@ -231,6 +232,14 @@ void showPoints()
     printf("\n--------------------------------\n");
 }
 
+void resetCards() 
+{
+    for (int i = 0; i < 3; i++) 
+    {
+        hand[i].isPlayed = false;
+    }
+}
+
 int main()
 {   
     srand(time(NULL));
@@ -275,12 +284,12 @@ int main()
             oppHand[randomIndex].isPlayed = true;
             cardsPlayed += 1;
 
-            int choice = 0;
+            int choice = 4;
             printf("\n\nJOGUE UMA CARTA: 1.%d%c ", hand[0].cardNumber, hand[0].cardSuit);
             printf("2.%d%c ", hand[1].cardNumber, hand[1].cardSuit);
             printf("3.%d%c\n", hand[2].cardNumber, hand[2].cardSuit);
             scanf("%d", &choice);
-            while(hand[choice - 1].isPlayed)
+            while(hand[choice - 1].isPlayed || (choice > 3 || choice < 1))
             {
                 printf("JOGUE OUTRA CARTA: \n");
                 scanf("%d", &choice);
@@ -328,19 +337,20 @@ int main()
                 if (playerPoints >= pointsToWin)
                 {
                     printf("TU VENCEU!");
-                    return 0;
+                    mainLoop = 0;
                 }
 
                 if (aiPoints >= pointsToWin)
                 {
                     printf("OPONENTE VENCEU!");
-                    return 0;
+                    mainLoop = 0;
                 }
                 youPlayNext = !(whoWentFirst);
 
                 playerCounter = 0;
                 aiCounter = 0;  
                 cardsPlayed = 0;
+                resetCards();
                 shuffleDeck();
                 drawCards();
             }
@@ -348,12 +358,12 @@ int main()
 
         if (youPlayNext == true)
         {
-            int choice = 0;
+            int choice = 4;
             printf("\n\nJOGUE UMA CARTA: 1.%d%c ", hand[0].cardNumber, hand[0].cardSuit);
             printf("2.%d%c ", hand[1].cardNumber, hand[1].cardSuit);
             printf("3.%d%c\n", hand[2].cardNumber, hand[2].cardSuit);
             scanf("%d", &choice);
-            while(hand[choice - 1].isPlayed)
+            while(hand[choice - 1].isPlayed || (choice > 3 || choice < 1))
             {
                 printf("JOGUE OUTRA CARTA: \n");
                 scanf("%d", &choice);
@@ -399,13 +409,13 @@ int main()
                 if (playerPoints >= pointsToWin)
                 {
                     printf("TU VENCEU!");
-                    return 0;
+                    mainLoop = 0;
                 }
 
                 if (aiPoints >= pointsToWin)
                 {
                     printf("OPONENTE VENCEU!");
-                    return 0;
+                    mainLoop = 0;
                 }
 
                 youPlayNext = !(whoWentFirst);
@@ -413,9 +423,19 @@ int main()
                 playerCounter = 0;
                 aiCounter = 0;  
                 cardsPlayed = 0;
+                resetCards();
                 shuffleDeck();
                 drawCards();
             }
         } 
-    }  
+    } 
+    /*int continuePlaying;
+    printf("Jogar de novo? 1. Sim / Qualquer tecla: Não");
+    scanf("%d", &continuePlaying);
+    if (continuePlaying = 1) {}
+    else 
+    {
+        return 0;   
+    } WIP */
+   return 0;
 }  
