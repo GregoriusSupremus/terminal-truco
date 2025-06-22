@@ -60,15 +60,15 @@ int generateHierarchy(int cardNumber, char cardSuit)
 
     else if (cardNumber == 1)
     {
-        hierarchy = 8;
         if (cardSuit == 'E')
         {
             hierarchy = 14;
         }
-        if (cardSuit == 'C')
+        if (cardSuit == 'P')
         {
             hierarchy = 13;
         }
+        hierarchy = 8;
     }
 
     else if (cardNumber == 12)
@@ -88,15 +88,15 @@ int generateHierarchy(int cardNumber, char cardSuit)
 
     else if (cardNumber == 7)
     {
-        hierarchy = 4;
         if (cardSuit == 'O')
         {
             hierarchy = 11;
         }
-        if (cardSuit == 'C')
+        if (cardSuit == 'E')
         {
             hierarchy = 12;
         }
+        hierarchy = 4;
     }
 
     else if (cardNumber == 6)
@@ -237,7 +237,7 @@ int main()
     generateDeck();
 
 
-    int pointsToWin = 3;
+    int pointsToWin = 15;
     int coin = flipCoin();
     if (coin == 1) 
     {
