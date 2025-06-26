@@ -3,4 +3,6 @@ Terminal-based "Truco" in C.
 
 TO-DO LIST
 
-- Add Truco's special rules 
+- Colored suits
+- Add Truco rule
+- Better readability in terminal
