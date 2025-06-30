@@ -274,6 +274,7 @@ bool checkFlor()
     }
     if (hand[0].cardSuit == hand[1].cardSuit &&  hand[1].cardSuit == hand[2].cardSuit)
     {
+        wasFlorPlayed = true;
         printf("\nTU: Que FLOR cheirosa!");
         playerPoints += 3;
         showPoints();
@@ -281,6 +282,7 @@ bool checkFlor()
     }
     if (oppHand[0].cardSuit == oppHand[1].cardSuit &&  oppHand[1].cardSuit == oppHand[2].cardSuit)
     {
+        wasFlorPlayed = true;
         printf("\nOPONENTE: FLOR... BIP... BOP...");
         aiPoints += 3;
         showPoints();
@@ -333,6 +335,14 @@ int aiHighCard()
     return bigger;
 }
 
+void showEnvido() 
+{
+    printf("\n------------ENVIDO------------\n");
+    printf("TU: %d\n", playerEnvido);
+    printf("OPONENTE: %d\n", aiEnvido);
+    printf("\n------------------------------\n");
+}
+
 int calculateEnvido() 
 { 
     if (hand[0].cardSuit == hand[1].cardSuit) 
@@ -350,6 +360,7 @@ int calculateEnvido()
     else 
     {
         playerEnvido = playerHighCard();
+        aiEnvido = aiHighCard();
     }
 
     if (oppHand[0].cardSuit == oppHand[1].cardSuit) 
@@ -364,32 +375,44 @@ int calculateEnvido()
     {
         aiEnvido = oppHand[1].envidoValue + oppHand[2].envidoValue + 20;
     }
+    else 
+    {
+        playerEnvido = playerHighCard();
+        aiEnvido = aiHighCard();
+    }
 
     if (playerEnvido > aiEnvido) 
     {
-        return 1;
+        playerPoints += 2;
+        showEnvido();
+        showPoints();
+        return 0;
     }
     else if (playerEnvido < aiEnvido) 
     {
-        return 2;
+        aiPoints += 2;
+        showEnvido();
+        showPoints();
+        return 0;
     }
     else if (playerEnvido == aiEnvido) 
     {
-        return 3;
-    }
-    else 
-    {
-        aiEnvido = aiHighCard();
+        if (youPlayNext == true)
+        {
+            playerPoints += 2;
+            showEnvido();
+            showPoints();
+            return 0;
+        }
+        else if (youPlayNext == false)
+        {
+            aiPoints += 2;
+            showEnvido();
+            showPoints();
+            return 0;
+        }
     }
     return 0;
-}
-
-void showEnvido() 
-{
-    printf("\n------------ENVIDO------------\n");
-    printf("TU: %d\n", playerEnvido);
-    printf("OPONENTE: %d\n", aiEnvido);
-    printf("\n------------------------------\n");
 }
 
 void playerAskEnvido()
@@ -410,24 +433,7 @@ void playerAskEnvido()
         if (oppChoice == 1) 
         {
             printf("\nOPONENTE: QUERO."); 
-            if (calculateEnvido() == 1)
-            {
-                playerPoints += 2;
-                showEnvido();
-                showPoints();
-            }
-            if (calculateEnvido() == 2)
-            {
-                aiPoints += 2;
-                showEnvido();
-                showPoints();
-            }
-            if (calculateEnvido() == 3)
-            {
-                aiPoints += 2;
-                showEnvido();
-                showPoints();
-            }
+            calculateEnvido();
         }
         if (oppChoice == 2) {printf("\nOPONENTE: NAO QUERO..."); playerPoints += 1; showPoints();}
     }
@@ -448,24 +454,7 @@ int aiAskEnvido()
 
     if (choice == 1) {
         printf("\nTU: QUERO."); 
-        if (calculateEnvido() == 1)
-        {
-            playerPoints += 2;
-            showEnvido();
-            showPoints();
-        }
-        if (calculateEnvido() == 2)
-        {
-            aiPoints += 2;
-            showEnvido();
-            showPoints();
-        }
-        if (calculateEnvido() == 3)
-        {
-            aiPoints += 2;
-            showEnvido();
-            showPoints();
-        }
+        calculateEnvido();
     }
     if (choice == 2) 
     {
@@ -482,9 +471,9 @@ trucoCard playerPlayCard()
     sleep(1);
 
     printf("\n--------------------------------\n");
-    wprintf(L"JOGUE UMA CARTA: 1. %d%lc ", hand[0].cardNumber, hand[0].cardSuit);
-    wprintf(L"2. %d%lc ", hand[1].cardNumber, hand[1].cardSuit);
-    wprintf(L"3. %d%lc ", hand[2].cardNumber, hand[2].cardSuit);
+    printf("JOGUE UMA CARTA: 1. %d%lc ", hand[0].cardNumber, hand[0].cardSuit);
+    printf("2. %d%lc ", hand[1].cardNumber, hand[1].cardSuit);
+    printf("3. %d%lc ", hand[2].cardNumber, hand[2].cardSuit);
     printf("4. Envido");
     printf("\n--------------------------------\n");
 
@@ -502,7 +491,7 @@ trucoCard playerPlayCard()
     }
 
     printf("\nTU: %d", hand[choice - 1].cardNumber);
-    wprintf(L"%lc", hand[choice - 1].cardSuit);
+    printf("%lc", hand[choice - 1].cardSuit);
 
     hand[choice - 1].isPlayed = true;
     cardsPlayed += 1;
@@ -528,7 +517,7 @@ trucoCard aiPlayCard()
     }
 
     printf("\nOPONENTE: %d", oppHand[randomIndex].cardNumber);
-    wprintf(L"%lc", oppHand[randomIndex].cardSuit);
+    printf("%lc", oppHand[randomIndex].cardSuit);
 
     oppHand[randomIndex].isPlayed = true;
     cardsPlayed += 1;
