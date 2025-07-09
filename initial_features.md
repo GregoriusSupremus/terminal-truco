@@ -1,6 +1,0 @@
-- deck generation
-- deck shuffling
-- draw hands (player and AI)
-- playing cards (player and AI)
-- hand cards are limited
-- inability to play the same card more than once
