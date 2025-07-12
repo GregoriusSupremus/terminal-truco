@@ -98,22 +98,22 @@ void showCards()
     printf("\nSuas cartas: ");
     for (int i = 0; i < currentHandSize; i++)
     {
-        wprintf(L"%d%lc ", hand[i].cardNumber, hand[i].cardSuit);
+        printf("%d%c ", hand[i].cardNumber, hand[i].cardSuit);
     }
     
     printf("\nCartas do oponente (para testes): ");
     for (int j = 0; j < currentHandSize; j++)
     {
-        wprintf(L"%d%lc ", oppHand[j].cardNumber, oppHand[j].cardSuit);
+        printf("%d%c ", oppHand[j].cardNumber, oppHand[j].cardSuit);
     }
-    printf("\n---------------------------------------\n");
+    printf("\n---------------------------------------");
 }
 
 void showPoints()
 {
     printf("\n-------------PONTOS-------------");
     printf("\nTu: %d", playerPoints);
-    printf("\nOponente: %d\n", aiPoints);
+    printf("\nOponente: %d", aiPoints);
 }
 
 void showEnvido() 
@@ -425,28 +425,38 @@ void envidoResult(int points)
 //PLAYER
 trucoCard playerPlayCard()
 {
-    int choice = 0;
-    printf("\n------------JOGUE UMA CARTA------------\n");
-    printf("|1- %d%lc| ", hand[0].cardNumber, hand[0].cardSuit);
-    printf("|2- %d%lc| ", hand[1].cardNumber, hand[1].cardSuit);
-    printf("|3- %d%lc| ", hand[2].cardNumber, hand[2].cardSuit);
-    printf("|4- Regra Especial|\n");
+    char buffer[100];
+    int choice;
 
-    while(hand[choice - 1].isPlayed || choice == 0)
+    while (true)
     {
-        scanf("%d", &choice);
-        if (choice == 4) 
+        printf("\n------------JOGUE UMA CARTA------------\n");
+        printf("|1- %d%lc| ", hand[0].cardNumber, hand[0].cardSuit);
+        printf("|2- %d%lc| ", hand[1].cardNumber, hand[1].cardSuit);
+        printf("|3- %d%lc| ", hand[2].cardNumber, hand[2].cardSuit);
+        printf("|4- Regra Especial|\n");
+
+        if (fgets(buffer, sizeof(buffer), stdin))
         {
-            playerSpecialRule();
-            choice = 0;
+            if (sscanf(buffer, "%d", &choice) != 1) 
+            {
+                printf("VALOR INVALIDO.\n");
+            }
+            else if (hand[choice - 1].isPlayed == false && choice != 4 && choice < 4 && choice > 0)
+            {
+                break;
+            } 
+            else if (choice == 4)
+            {
+                playerSpecialRule();
+            }
         }
     }
 
     sleep(1);
     printf("\n---------------------------------------\n");
-    printf("\nTU: %d", hand[choice - 1].cardNumber);
-    printf("%c", hand[choice - 1].cardSuit);
-    printf("\n---------------------------------------\n");
+    printf("TU: %d%c", hand[choice - 1].cardNumber, hand[choice - 1].cardSuit);
+    printf("\n---------------------------------------");
 
     hand[choice - 1].isPlayed = true;
     cardsPlayed += 1;
@@ -492,19 +502,31 @@ void playerAskEnvido()
         printf("\nOPONENTE: REAL ENVIDO"); 
         printf("\n1. QUERO || 2. NAO QUERO\n");
 
+        char buffer[100];
         int choice;
-        scanf("%d", &choice);
 
-        if (choice == 1) 
+        while (true)
         {
-            printf("\nTU: QUERO."); 
-            envidoResult(5);
-        }
-        if (choice == 2) 
-        {
-            printf("\nTU: NAO QUERO..."); 
-            aiPoints += 2;
-            showPoints();
+            if (fgets(buffer, sizeof(buffer), stdin))
+            {
+                if (sscanf(buffer, "%d", &choice) != 1) 
+                {
+                    printf("VALOR INVALIDO.\n");
+                }
+                else if (choice == 1)
+                {
+                    printf("\nTU: QUERO."); 
+                    envidoResult(5);
+                    break;
+                } 
+                else if (choice == 2)
+                {
+                    playerSpecialRule();
+                    printf("\nTU: NAO QUERO..."); 
+                    aiPoints += 2;
+                    showPoints();
+                }
+            }
         }
     }
 }
@@ -547,43 +569,59 @@ void playerAskTruco()
 
 void playerSpecialRule()
 {
+    char buffer[100];
     int choice = 0;
+
     printf("| 1- Truco | \n");
     printf("| 4- Envido | 5- Real Envido |\n");
-    scanf("%d", &choice);
 
-    if (choice == 1 && wasTrucoAsked == false)
+    while (true)
     {
-        playerAskTruco();
-    }
+        if (fgets(buffer, sizeof(buffer), stdin))
+        {
+            if (sscanf(buffer, "%d", &choice) != 1) 
+            {
+                printf("VALOR INVALIDO.\n");
+            }
+            else if (choice == 1 && wasTrucoAsked == false)
+            {
+                playerAskTruco();
+                break;
+            } 
+            else if (choice == 4)
+            {
+                if (wasFlorPlayed == true) 
+                {
+                    printf("\nERRO. FLOR CANTADA.");
+                }
+                else if (aiAskedEnvido || aiAskedRealEnvido || playerAskedEnvido || playerAskedRealEnvido)
+                {
+                    printf("\nENVIDO JA CANTADO");
+                }
+                else 
+                {
+                    playerAskEnvido();
+                    aiAskedEnvido = true;
+                    break;
+                }
+            }
 
-    if (choice == 4)
-    {
-        if (wasFlorPlayed == true) 
-        {
-            printf("\nERRO. FLOR CANTADA.");
-        }
-        else if (aiAskedEnvido || aiAskedRealEnvido || playerAskedEnvido || playerAskedRealEnvido)
-        {
-            printf("\nENVIDO JA CANTADO");
-        }
-        else 
-        {
-            playerAskEnvido();
-            aiAskedEnvido = true;
-        }
-    }
-
-    if (choice == 5)
-    {
-        if (wasFlorPlayed == true) 
-        {
-            printf("\nERRO. FLOR CANTADA.");
-        }
-        else 
-        {
-            playerAskRealEnvido();
-            playerAskedRealEnvido = true;
+            else if (choice == 5)
+            {
+                if (wasFlorPlayed == true) 
+                {
+                    printf("\nERRO. FLOR CANTADA.");
+                }
+                else if (playerAskedEnvido || aiAskedRealEnvido || aiAskedEnvido)
+                {
+                    printf("\nENVIDO JA CANTADO");
+                }
+                else 
+                {
+                    playerAskRealEnvido();
+                    playerAskedRealEnvido = true;
+                }
+            }
         }
     }
 }
@@ -619,9 +657,9 @@ trucoCard aiPlayCard()
 
     sleep(1);
     printf("\n---------------------------------------\n");
-    printf("\nOPONENTE: %d", oppHand[randomIndex].cardNumber);
+    printf("OPONENTE: %d", oppHand[randomIndex].cardNumber);
     printf("%lc", oppHand[randomIndex].cardSuit);
-    printf("\n---------------------------------------\n");
+    printf("\n---------------------------------------");
 
     oppHand[randomIndex].isPlayed = true;
     cardsPlayed += 1;
@@ -652,34 +690,47 @@ void aiAskEnvido()
     printf("\n1. QUERO || 2. NAO QUERO || 3. REAL ENVIDO\n");
 
     int choice;
-    scanf("%d", &choice);
+    char buffer[100];
 
-    if (choice == 1) 
+    while (true)
     {
-        printf("\nTU: QUERO."); 
-        envidoResult(2);
-        
-    }
-    if (choice == 2) 
-    {
-        printf("\nTU: NAO QUERO..."); 
-        aiPoints += 1;
-        showPoints();
-    } 
-    if (choice == 3)
-    {
-        printf("\nTU: REAL ENVIDO.");
-        int oppChoice = (rand() % 2) + 1;
-        if (oppChoice == 1) 
-        {   
-            printf("\nOPONENTE: QUERO."); 
-            envidoResult(5);
-        }
-        if (oppChoice == 2) 
+        if (fgets(buffer, sizeof(buffer), stdin))
         {
-            printf("\nOPONENTE: NAO QUERO..."); 
-            playerPoints += 2; 
-            showPoints();
+            if (sscanf(buffer, "%d", &choice) != 1) 
+            {
+                printf("VALOR INVALIDO.\n");
+            }
+            else if (choice == 1)
+            {
+                printf("\nTU: QUERO."); 
+                envidoResult(2);
+                break;
+            } 
+            else if (choice == 2)
+            {
+                printf("\nTU: NAO QUERO..."); 
+                aiPoints += 1;
+                showPoints();
+                break;
+            }
+            else if (choice == 3)
+            {
+                printf("\nTU: REAL ENVIDO.");
+                int oppChoice = (rand() % 2) + 1;
+                if (oppChoice == 1) 
+                {   
+                    printf("\nOPONENTE: QUERO."); 
+                    envidoResult(5);
+                    break;
+                }
+                if (oppChoice == 2) 
+                {
+                    printf("\nOPONENTE: NAO QUERO..."); 
+                    playerPoints += 2; 
+                    showPoints();
+                    break;
+                }
+            }
         }
     }
 }
@@ -690,19 +741,31 @@ void aiAskRealEnvido()
     printf("\n1. QUERO || 2. NAO QUERO\n");
 
     int choice;
-    scanf("%d", &choice);
+    char buffer[100];
 
-    if (choice == 1) 
+    while (true)
     {
-        printf("\nTU: QUERO."); 
-        envidoResult(3);
+        if (fgets(buffer, sizeof(buffer), stdin))
+        {
+            if (sscanf(buffer, "%d", &choice) != 1) 
+            {
+                printf("VALOR INVALIDO.\n");
+            }
+            else if (choice == 1)
+            {
+                printf("\nTU: QUERO."); 
+                envidoResult(3);
+                break;
+            } 
+            else if (choice == 2)
+            {
+                printf("\nTU: NAO QUERO..."); 
+                aiPoints += 1;
+                showPoints();
+                break;
+            }
+        }
     }
-    if (choice == 2) 
-    {
-        printf("\nTU: NAO QUERO..."); 
-        aiPoints += 1;
-        showPoints();
-    } 
 }
 
 void aiAskTruco() 
@@ -711,20 +774,32 @@ void aiAskTruco()
     printf("\n1. QUERO || 2. NAO QUERO\n");
 
     int choice;
-    scanf("%d", &choice);
+    char buffer[100];
 
-    if (choice == 1) {
-        
-        printf("\nTU: QUERO."); 
-        roundValue = 2;
-    }
-    if (choice == 2) 
+    while (true)
     {
-        printf("\nTU: NAO QUERO..."); 
-        aiPoints += 1;
-        showPoints();
-        startNewRound();
-    } 
+        if (fgets(buffer, sizeof(buffer), stdin))
+        {
+            if (sscanf(buffer, "%d", &choice) != 1) 
+            {
+                printf("VALOR INVALIDO.\n");
+            }
+            else if (choice == 1)
+            {
+                printf("\nTU: QUERO."); 
+                roundValue = 2;
+                break;
+            } 
+            else if (choice == 2)
+            {
+                printf("\nTU: NAO QUERO..."); 
+                aiPoints += 1;
+                showPoints();
+                startNewRound();
+                break;
+            }
+        }
+    }
 }
 
 //MAIN
