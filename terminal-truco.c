@@ -9,6 +9,8 @@
 #define RANDOM_INDEX rand() % DIFFERENT_CARDS
 #define RANDOM_HAND_CARD (rand() % 3)
 #define DECK_SIZE 40
+#define ENVIDO_NOT_PLAYED (aiAskedEnvido == false && aiAskedRealEnvido == false && playerAskedEnvido == false && playerAskedRealEnvido == false)
+
 
 typedef struct
 {
@@ -49,7 +51,8 @@ bool playerAskedRealEnvido;
 bool aiAskedEnvido;
 bool aiAskedRealEnvido;
 
-bool wasTrucoAsked;
+bool playerAskedTruco;
+bool aiAskedTruco;
 
 bool youPlayNext;
 
@@ -304,7 +307,17 @@ void addPoints()
     {
         playerPoints += roundValue;
     }
-    if (aiCounter >= 2 && playerCounter != aiCounter)
+    
+    else if (playerCounter >= 2 && playerCounter == aiCounter)
+    {
+        if (youPlayNext == true)
+        {
+            playerPoints += roundValue;
+        }
+        else {aiPoints += roundValue;}
+    }
+
+    else if (aiCounter >= 2 && playerCounter != aiCounter)
     {
         aiPoints += roundValue;
     }
@@ -348,7 +361,8 @@ void startNewRound()
     aiAskedEnvido = false;
     aiAskedRealEnvido = false;
     wasFlorPlayed = false;
-    wasTrucoAsked = false;
+    playerAskedTruco = false;
+    aiAskedTruco = false;
     resetCards();
     shuffleDeck();
     drawCards();
@@ -431,9 +445,14 @@ trucoCard playerPlayCard()
     while (true)
     {
         printf("\n------------JOGUE UMA CARTA------------\n");
-        printf("|1- %d%lc| ", hand[0].cardNumber, hand[0].cardSuit);
-        printf("|2- %d%lc| ", hand[1].cardNumber, hand[1].cardSuit);
-        printf("|3- %d%lc| ", hand[2].cardNumber, hand[2].cardSuit);
+        
+        for (int i = 0; i < HAND_SIZE; i++)
+        {
+            if (hand[i].isPlayed == false)
+            {
+                printf("|%d- %d%lc| ", (i + 1), hand[i].cardNumber, hand[i].cardSuit);
+            }
+        }
         printf("|4- Regra Especial|\n");
 
         if (fgets(buffer, sizeof(buffer), stdin))
@@ -469,14 +488,10 @@ int playerHighCard()
     int bigger = 0;
     for (int i = 0; i < 3; i++)
     {
-        if (hand[i].cardNumber > bigger)
+        if (hand[i].cardNumber > bigger && hand[i].cardNumber < 10)
         {
             bigger = hand[i].cardNumber;
         }
-    }
-    if (bigger > 9)
-    {
-        bigger-= 10;
     }
     return bigger;
 }
@@ -550,7 +565,6 @@ void playerAskRealEnvido()
 
 void playerAskTruco() 
 {
-    printf("\nTU: TRUCO.");
     int oppChoice = (rand() % 2) + 1;
     if (oppChoice == 1) 
     {
@@ -583,20 +597,28 @@ void playerSpecialRule()
             {
                 printf("VALOR INVALIDO.\n");
             }
-            else if (choice == 1 && wasTrucoAsked == false)
+            else if (choice == 1)
             {
-                playerAskTruco();
+                if (playerAskedTruco || aiAskedTruco)
+                {
+                    printf("TRUCO JA CANTADO. TENTE PEDIR RETRUCO.");
+                }
+                else
+                {
+                    playerAskTruco();
+                    playerAskedTruco = true;
+                }
                 break;
             } 
             else if (choice == 4)
             {
-                if (wasFlorPlayed == true) 
+                if (wasFlorPlayed) 
                 {
                     printf("\nERRO. FLOR CANTADA.");
                 }
                 else if (aiAskedEnvido || aiAskedRealEnvido || playerAskedEnvido || playerAskedRealEnvido)
                 {
-                    printf("\nENVIDO JA CANTADO");
+                    printf("\nENVIDO JA CANTADO\n");
                 }
                 else 
                 {
@@ -604,6 +626,7 @@ void playerSpecialRule()
                     aiAskedEnvido = true;
                     break;
                 }
+                break;
             }
 
             else if (choice == 5)
@@ -614,13 +637,14 @@ void playerSpecialRule()
                 }
                 else if (playerAskedEnvido || aiAskedRealEnvido || aiAskedEnvido)
                 {
-                    printf("\nENVIDO JA CANTADO");
+                    printf("\nERRO. TENTE ALGO DIFERENTE.");
                 }
                 else 
                 {
                     playerAskRealEnvido();
                     playerAskedRealEnvido = true;
                 }
+                break;
             }
         }
     }
@@ -631,21 +655,21 @@ trucoCard aiPlayCard()
 {
     int chanceToAskRule = rand() % 1000;
 
-    if (chanceToAskRule <= 200 && wasFlorPlayed == false && aiAskedRealEnvido == false)
+    if (chanceToAskRule <= 200 && wasFlorPlayed == false && ENVIDO_NOT_PLAYED)
     {
         aiAskRealEnvido();
         aiAskedRealEnvido = true;
     }
-    else if (chanceToAskRule > 201 && chanceToAskRule <= 250 && wasFlorPlayed == false && aiAskedRealEnvido == false)
+    else if (chanceToAskRule > 201 && chanceToAskRule <= 250 && wasFlorPlayed == false && ENVIDO_NOT_PLAYED)
     {
         aiAskRealEnvido();
         aiAskedRealEnvido = true;
     }
 
-    else if (chanceToAskRule > 251 && chanceToAskRule <= 600 && wasTrucoAsked == false)
+    else if (chanceToAskRule > 251 && chanceToAskRule <= 600 && aiAskedTruco == false && playerAskedTruco == false)
     {
         aiAskTruco();
-        wasTrucoAsked = true;
+        aiAskedTruco = true;
     }
 
     int randomIndex = RANDOM_HAND_CARD;
