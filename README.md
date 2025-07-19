@@ -1,8 +1,7 @@
 # terminal-truco
 Terminal-based "Truco" in C.
 
-TO-DO LIST
+This is a rewrite of the previous version. Hopefully, more readable and less "spaghetti";
 
-- Colored suits
-- Add Truco rule
-- Better readability in terminal
+TO-DO LIST: 
+    Add Truco's characteristc rules (i.e Truco, Envido, Flor);
